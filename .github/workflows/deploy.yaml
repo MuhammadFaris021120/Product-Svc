@@ -16,69 +16,108 @@ jobs:
     name: Build and Deploy to IIS
     runs-on: [self-hosted, Windows, X64]
 
+    # Fix PowerShell execution policy for GitHub Actions
+    defaults:
+      run:
+        shell: pwsh -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File {0}
+
     steps:
       # 1. Download source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install .NET 10 SDK
+      # 2. Verify installed .NET 10 SDK
       - name: Verify .NET SDK
-        shell: powershell
         run: |
-          dotnet --version
+          dotnet --info
           dotnet --list-sdks
+
+          $sdk = dotnet --list-sdks
+
+          if ($sdk -notmatch '10\.0\.') {
+            throw ".NET 10 SDK is not installed or unavailable."
+          }
 
       # 3. Locate API project
       - name: Locate API project
-        shell: powershell
         run: |
-          $projects = Get-ChildItem `
-            -Path $env:GITHUB_WORKSPACE `
-            -Filter "*.csproj" `
-            -Recurse |
-            Where-Object {
-              $_.Name -eq "Product-Svc.csproj"
-            }
+          $projects = @(
+            Get-ChildItem `
+              -Path $env:GITHUB_WORKSPACE `
+              -Filter "Product-Svc.csproj" `
+              -Recurse
+          )
 
           if ($projects.Count -ne 1) {
             throw "Expected exactly one Product-Svc.csproj. Found: $($projects.Count)"
           }
 
-          "PROJECT_PATH=$($projects[0].FullName)" |
-            Out-File -FilePath $env:GITHUB_ENV -Append
+          $projectPath = $projects[0].FullName
 
-      # 4. Restore dependencies
+          Write-Host "Project found: $projectPath"
+
+          "PROJECT_PATH=$projectPath" |
+            Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # 4. Restore NuGet dependencies
       - name: Restore dependencies
-        run: dotnet restore "$env:PROJECT_PATH"
+        run: |
+          dotnet restore "$env:PROJECT_PATH"
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Dependency restore failed."
+          }
 
       # 5. Build project
       - name: Build
-        run: dotnet build "$env:PROJECT_PATH" -c Release --no-restore
+        run: |
+          dotnet build "$env:PROJECT_PATH" `
+            -c Release `
+            --no-restore
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Build failed."
+          }
 
       # 6. Publish for Windows x64
       - name: Publish
         run: |
+          $publishPath = Join-Path $env:RUNNER_TEMP "Product-Svc-publish"
+
+          if (Test-Path $publishPath) {
+            Remove-Item $publishPath -Recurse -Force
+          }
+
           dotnet publish "$env:PROJECT_PATH" `
             -c Release `
             -r win-x64 `
             --self-contained false `
             --no-restore `
-            -o "$env:RUNNER_TEMP\Product-Svc-publish"
+            -o "$publishPath"
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Publish failed."
+          }
+
+          if (!(Test-Path "$publishPath\web.config")) {
+            throw "Published web.config was not generated."
+          }
+
+          Write-Host "Publish completed: $publishPath"
 
       # 7. Deploy to IIS
       - name: Deploy to IIS
-        shell: powershell
         run: |
-          $source = "$env:RUNNER_TEMP\Product-Svc-publish"
+          $source = Join-Path $env:RUNNER_TEMP "Product-Svc-publish"
           $destination = "C:\publish"
           $offline = Join-Path $destination "app_offline.htm"
 
           if (!(Test-Path $source)) {
-            throw "Publish directory not found"
+            throw "Publish directory not found: $source"
           }
 
           if (!(Test-Path $destination)) {
-            throw "IIS directory not found"
+            throw "IIS directory not found: $destination"
           }
 
           try {
@@ -86,16 +125,24 @@ jobs:
             Set-Content -Path $offline `
               -Value "Application deployment in progress"
 
-            # Copy published files
-            robocopy $source $destination /E /R:2 /W:2
+            Start-Sleep -Seconds 3
 
-            if ($LASTEXITCODE -ge 8) {
-              throw "Robocopy deployment failed: $LASTEXITCODE"
+            # Copy published files
+            & robocopy $source $destination /E /R:2 /W:2
+
+            $copyExitCode = $LASTEXITCODE
+
+            if ($copyExitCode -ge 8) {
+              throw "Robocopy deployment failed: $copyExitCode"
             }
 
-            Write-Host "Deployment completed successfully"
+            Write-Host "Files copied successfully."
           }
           finally {
             # Bring application online
-            Remove-Item $offline -Force -ErrorAction SilentlyContinue
+            if (Test-Path $offline) {
+              Remove-Item $offline -Force
+            }
           }
+
+          Write-Host "Product-Svc deployment completed successfully."
