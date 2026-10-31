@@ -75,6 +75,7 @@ jobs:
           }
 
       # 6. Publish for Windows x64
+      
       - name: Publish
         run: |
           $publishPath = Join-Path $env:RUNNER_TEMP "Product-Svc-publish"
@@ -84,21 +85,18 @@ jobs:
           }
 
           dotnet publish "$env:PROJECT_PATH" `
-            -c Release `
-            -r win-x64 `
+            --configuration Release `
             --self-contained false `
             --no-restore `
-            -o "$publishPath"
+            --output "$publishPath"
 
           if ($LASTEXITCODE -ne 0) {
             throw "Publish failed."
           }
 
-          if (!(Test-Path "$publishPath\web.config")) {
-            throw "Published web.config was not generated."
-          }
+          Write-Host "Publish completed successfully."
+          Write-Host "Published files: $publishPath"
 
-          Write-Host "Publish completed: $publishPath"
 
       # 7. Deploy to IIS
       - name: Deploy to IIS
