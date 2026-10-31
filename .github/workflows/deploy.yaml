@@ -1,0 +1,100 @@
+
+name: Product-Svc CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and Deploy to IIS
+    runs-on: [self-hosted, Windows, X64]
+
+    steps:
+      # 1. Download source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install .NET 10 SDK
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # 3. Locate API project
+      - name: Locate API project
+        shell: powershell
+        run: |
+          $projects = Get-ChildItem `
+            -Path $env:GITHUB_WORKSPACE `
+            -Filter "*.csproj" `
+            -Recurse |
+            Where-Object {
+              $_.Name -eq "Product-Svc.csproj"
+            }
+
+          if ($projects.Count -ne 1) {
+            throw "Expected exactly one Product-Svc.csproj. Found: $($projects.Count)"
+          }
+
+          "PROJECT_PATH=$($projects[0].FullName)" |
+            Out-File -FilePath $env:GITHUB_ENV -Append
+
+      # 4. Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore "$env:PROJECT_PATH"
+
+      # 5. Build project
+      - name: Build
+        run: dotnet build "$env:PROJECT_PATH" -c Release --no-restore
+
+      # 6. Publish for Windows x64
+      - name: Publish
+        run: |
+          dotnet publish "$env:PROJECT_PATH" `
+            -c Release `
+            -r win-x64 `
+            --self-contained false `
+            --no-restore `
+            -o "$env:RUNNER_TEMP\Product-Svc-publish"
+
+      # 7. Deploy to IIS
+      - name: Deploy to IIS
+        shell: powershell
+        run: |
+          $source = "$env:RUNNER_TEMP\Product-Svc-publish"
+          $destination = "C:\publish"
+          $offline = Join-Path $destination "app_offline.htm"
+
+          if (!(Test-Path $source)) {
+            throw "Publish directory not found"
+          }
+
+          if (!(Test-Path $destination)) {
+            throw "IIS directory not found"
+          }
+
+          try {
+            # Take application offline
+            Set-Content -Path $offline `
+              -Value "Application deployment in progress"
+
+            # Copy published files
+            robocopy $source $destination /E /R:2 /W:2
+
+            if ($LASTEXITCODE -ge 8) {
+              throw "Robocopy deployment failed: $LASTEXITCODE"
+            }
+
+            Write-Host "Deployment completed successfully"
+          }
+          finally {
+            # Bring application online
+            Remove-Item $offline -Force -ErrorAction SilentlyContinue
+          }
