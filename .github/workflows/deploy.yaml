@@ -40,26 +40,19 @@ jobs:
 
           Write-Host "Successfully detected .NET 10 SDK."
 
-      # 3. Locate API project
+      #locate the api
       - name: Locate API project
         run: |
-          $projects = @(
-            Get-ChildItem `
-              -Path $env:GITHUB_WORKSPACE `
-              -Filter "Product-Svc.csproj" `
-              -Recurse
-          )
+          $project = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "Product.Api.csproj" |
+            Select-Object -First 1
 
-          if ($projects.Count -ne 1) {
-            throw "Expected exactly one Product-Svc.csproj. Found: $($projects.Count)"
+          if (-not $project) {
+            throw "Product.Api.csproj was not found."
           }
 
-          $projectPath = $projects[0].FullName
+          Write-Host "Found API project: $($project.FullName)"
+          "PROJECT_PATH=$($project.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-          Write-Host "Project found: $projectPath"
-
-          "PROJECT_PATH=$projectPath" |
-            Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       # 4. Restore NuGet dependencies
       - name: Restore dependencies
