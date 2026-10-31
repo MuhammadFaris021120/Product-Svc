@@ -1,0 +1,15 @@
+C:\Users\faris\product\Product.Application\obj\Debug\net10.0\Product.Application.csproj.AssemblyReference.cache
+C:\Users\faris\product\Product.Application\obj\Debug\net10.0\Product.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\faris\product\Product.Application\obj\Debug\net10.0\Product.Application.AssemblyInfoInputs.cache
+C:\Users\faris\product\Product.Application\obj\Debug\net10.0\Product.Application.AssemblyInfo.cs
+C:\Users\faris\product\Product.Application\obj\Debug\net10.0\Product.Application.csproj.CoreCompileInputs.cache
+C:\Users\faris\Product\Product.Application\bin\Debug\net10.0\Product.Application.deps.json
+C:\Users\faris\Product\Product.Application\bin\Debug\net10.0\Product.Application.dll
+C:\Users\faris\Product\Product.Application\bin\Debug\net10.0\Product.Application.pdb
+C:\Users\faris\Product\Product.Application\bin\Debug\net10.0\Product.Domain.dll
+C:\Users\faris\Product\Product.Application\bin\Debug\net10.0\Product.Domain.pdb
+C:\Users\faris\Product\Product.Application\obj\Debug\net10.0\Product..7E280BC3.Up2Date
+C:\Users\faris\Product\Product.Application\obj\Debug\net10.0\Product.Application.dll
+C:\Users\faris\Product\Product.Application\obj\Debug\net10.0\refint\Product.Application.dll
+C:\Users\faris\Product\Product.Application\obj\Debug\net10.0\Product.Application.pdb
+C:\Users\faris\Product\Product.Application\obj\Debug\net10.0\ref\Product.Application.dll

@@ -1,0 +1,17 @@
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Infrastructure.deps.json
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Infrastructure.dll
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Infrastructure.pdb
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Application.dll
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Domain.dll
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Application.pdb
+C:\Users\faris\myapp\MyApp.Infrastructure\bin\Debug\net10.0\MyApp.Domain.pdb
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.AssemblyInfo.cs
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.In.4513676F.Up2Date
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.dll
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\refint\MyApp.Infrastructure.dll
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\MyApp.Infrastructure.pdb
+C:\Users\faris\myapp\MyApp.Infrastructure\obj\Debug\net10.0\ref\MyApp.Infrastructure.dll

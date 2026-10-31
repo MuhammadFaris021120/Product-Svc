@@ -1,0 +1,29 @@
+2026-09-20 11:20:49.816 +08:00 [WRN] Failed to determine the https port for redirect.
+2026-09-20 11:20:50.086 +08:00 [ERR] HTTP POST /api/Products responded 500 in 281.6054 ms
+FluentValidation.ValidationException: Validation failed: 
+ -- product.Price: Price must be greater than zero. Severity: Error
+   at MyApp.Application.Common.Behaviors.ValidationBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken ct) in C:\Users\faris\myapp\MyApp.Application\Common\Behaviors\ValidationBehavior.cs:line 30
+   at MyApp.Api.Controllers.ProductsController.Create(CreateProductCommand command, CancellationToken ct) in C:\Users\faris\myapp\MyApp.Api\Controllers\ProductsController.cs:line 26
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeInnerFilterAsync()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-09-20 11:21:49.140 +08:00 [INF] Product created with Id 4 and Name string
+2026-09-20 11:21:49.184 +08:00 [INF] HTTP POST /api/Products responded 201 in 1969.6038 ms
+2026-09-20 14:37:48.248 +08:00 [WRN] Failed to determine the https port for redirect.
+2026-09-20 14:37:50.623 +08:00 [INF] HTTP GET /api/Products/2 responded 200 in 2392.8014 ms
+2026-09-20 14:38:08.755 +08:00 [INF] HTTP GET /api/Products/1 responded 404 in 231.6584 ms
+2026-09-20 14:39:05.436 +08:00 [INF] Product created with Id 5 and Name kebaya
+2026-09-20 14:39:05.473 +08:00 [INF] HTTP POST /api/Products responded 201 in 618.9237 ms
+2026-09-20 15:32:19.502 +08:00 [WRN] Failed to determine the https port for redirect.
+2026-09-20 15:32:21.824 +08:00 [INF] Product created with Id 6 and Name test
+2026-09-20 15:32:21.899 +08:00 [INF] HTTP POST /api/Products responded 201 in 2411.1104 ms
+2026-09-20 15:32:31.580 +08:00 [INF] HTTP GET /api/Products responded 200 in 632.5461 ms
