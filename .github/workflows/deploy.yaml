@@ -16,7 +16,6 @@ jobs:
     name: Build and Deploy to IIS
     runs-on: [self-hosted, Windows, X64]
 
-    # Fix PowerShell execution policy for GitHub Actions
     defaults:
       run:
         shell: pwsh -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File {0}
@@ -30,17 +29,16 @@ jobs:
       - name: Verify .NET SDK
         run: |
           dotnet --info
-          dotnet --list-sdks
 
           $sdk = dotnet --list-sdks | Out-String
 
           if ($sdk -notmatch '(?m)^10\.0\.') {
-          throw ".NET 10 SDK is not installed or unavailable."
+            throw ".NET 10 SDK is not installed or unavailable."
           }
 
           Write-Host "Successfully detected .NET 10 SDK."
 
-      #locate the api
+      # 3. Locate API project
       - name: Locate API project
         run: |
           $project = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "Product.Api.csproj" |
@@ -51,8 +49,9 @@ jobs:
           }
 
           Write-Host "Found API project: $($project.FullName)"
-          "PROJECT_PATH=$($project.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+          "PROJECT_PATH=$($project.FullName)" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       # 4. Restore NuGet dependencies
       - name: Restore dependencies
@@ -63,19 +62,22 @@ jobs:
             throw "Dependency restore failed."
           }
 
+          Write-Host "Dependencies restored successfully."
+
       # 5. Build project
       - name: Build
         run: |
           dotnet build "$env:PROJECT_PATH" `
-            -c Release `
+            --configuration Release `
             --no-restore
 
           if ($LASTEXITCODE -ne 0) {
             throw "Build failed."
           }
 
-      # 6. Publish for Windows x64
-      
+          Write-Host "Build completed successfully."
+
+      # 6. Publish application
       - name: Publish
         run: |
           $publishPath = Join-Path $env:RUNNER_TEMP "Product-Svc-publish"
@@ -94,9 +96,12 @@ jobs:
             throw "Publish failed."
           }
 
+          if (!(Test-Path (Join-Path $publishPath "Product.Api.dll"))) {
+            throw "Product.Api.dll was not found in the publish directory."
+          }
+
           Write-Host "Publish completed successfully."
           Write-Host "Published files: $publishPath"
-
 
       # 7. Deploy to IIS
       - name: Deploy to IIS
@@ -109,6 +114,10 @@ jobs:
             throw "Publish directory not found: $source"
           }
 
+          if (!(Test-Path (Join-Path $source "Product.Api.dll"))) {
+            throw "Published Product.Api.dll is missing."
+          }
+
           if (!(Test-Path $destination)) {
             throw "IIS directory not found: $destination"
           }
@@ -118,6 +127,8 @@ jobs:
             Set-Content -Path $offline `
               -Value "Application deployment in progress"
 
+            Write-Host "Application taken offline."
+
             Start-Sleep -Seconds 3
 
             # Copy published files
@@ -125,17 +136,23 @@ jobs:
 
             $copyExitCode = $LASTEXITCODE
 
+            # Robocopy exit codes 0-7 are successful
             if ($copyExitCode -ge 8) {
-              throw "Robocopy deployment failed: $copyExitCode"
+              throw "Robocopy deployment failed with exit code: $copyExitCode"
             }
 
-            Write-Host "Files copied successfully."
+            Write-Host "Robocopy completed successfully. Exit code: $copyExitCode"
+
+            # Reset PowerShell's native exit code
+            $global:LASTEXITCODE = 0
           }
           finally {
             # Bring application online
             if (Test-Path $offline) {
               Remove-Item $offline -Force
+              Write-Host "Application brought online."
             }
           }
 
           Write-Host "Product-Svc deployment completed successfully."
+
