@@ -32,11 +32,13 @@ jobs:
           dotnet --info
           dotnet --list-sdks
 
-          $sdk = dotnet --list-sdks
+          $sdk = dotnet --list-sdks | Out-String
 
-          if ($sdk -notmatch '10\.0\.') {
-            throw ".NET 10 SDK is not installed or unavailable."
+          if ($sdk -notmatch '(?m)^10\.0\.') {
+          throw ".NET 10 SDK is not installed or unavailable."
           }
+
+          Write-Host "Successfully detected .NET 10 SDK."
 
       # 3. Locate API project
       - name: Locate API project
